@@ -205,11 +205,33 @@ class TextPaneCanvas extends JPanel implements MouseInputListener,
     }
 
     private void paintStretchedAspectRatioBackground(final Graphics2D g) {
-        paintStretchedBackground(g);
+        final double widthratio = getBounds().width
+                / (double) backgroundImage.getWidth(null);
+        final double heightratio = getBounds().height
+                / (double) backgroundImage.getHeight(null);
+        final double ratio = Math.min(widthratio, heightratio);
+        final int width = (int) (backgroundImage.getWidth(null) * ratio);
+        final int height = (int) (backgroundImage.getWidth(null) * ratio);
+
+        final int x = (getBounds().width / 2) - (width / 2);
+        final int y = (getBounds().height / 2) - (height / 2);
+        g.drawImage(backgroundImage, x, y, width, height, null);
     }
 
     private void paintTiledBackground(final Graphics2D g) {
-        paintStretchedBackground(g);
+        final int width = backgroundImage.getWidth(null);
+        final int height = backgroundImage.getWidth(null);
+
+        if (width <= 0 || height <= 0) {
+            // ARG!
+            return;
+        }
+
+        for (int x = 0; x < getBounds().width; x += width) {
+            for (int y = 0; y < getBounds().height; y += height) {
+                g.drawImage(backgroundImage, x, y, width, height, null);
+            }
+        }
     }
 
     private void updateCachedSettings() {
