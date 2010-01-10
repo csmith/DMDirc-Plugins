@@ -96,6 +96,8 @@ class TextPaneCanvas extends JPanel implements MouseInputListener,
     private  ConfigManager manager;
     /** Config domain. */
     private  String domain;
+    /** Background image option. */
+    private BackgroundOption backgroundOption;
 
     /**
      * Creates a new text pane canvas.
@@ -120,6 +122,7 @@ class TextPaneCanvas extends JPanel implements MouseInputListener,
         addMouseMotionListener(this);
         addComponentListener(this);
         manager.addChangeListener(domain, "textpanebackground", this);
+        manager.addChangeListener(domain, "textpanebackgroundoption", this);
 
         updateCachedSettings();
     }
@@ -164,11 +167,49 @@ class TextPaneCanvas extends JPanel implements MouseInputListener,
      */
     private void paintBackground(final Graphics2D g) {
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0,
-                    0, getBounds().width, getBounds().height, null);
+            switch (backgroundOption) {
+                case TILED:
+                    paintTiledBackground(g);
+                    break;
+                case STRETCH:
+                    paintStretchedBackground(g);
+                    break;
+                case STRETCH_ASPECT_RATIO:
+                    paintStretchedAspectRatioBackground(g);
+                    break;
+                case CENTER:
+                    paintCenterBackground(g);
+                    break;
+                default:
+                    break;
+            }
         } else {
-            g.fill(getBounds());
+            paintNoBackground(g);
         }
+    }
+
+    private void paintNoBackground(final Graphics2D g) {
+        g.fill(getBounds());
+    }
+
+    private void paintStretchedBackground(final Graphics2D g) {
+        g.drawImage(backgroundImage, 0, 0, getBounds().width,
+                getBounds().height, null);
+    }
+
+    private void paintCenterBackground(final Graphics2D g) {
+        final int x = (getBounds().width / 2) - (backgroundImage.getWidth(null) / 2);
+        final int y = (getBounds().height / 2) - (backgroundImage.getHeight(null) / 2);
+        g.drawImage(backgroundImage, x, y, backgroundImage.getWidth(null),
+                backgroundImage.getWidth(null), null);
+    }
+
+    private void paintStretchedAspectRatioBackground(final Graphics2D g) {
+        paintStretchedBackground(g);
+    }
+
+    private void paintTiledBackground(final Graphics2D g) {
+        paintStretchedBackground(g);
     }
 
     private void updateCachedSettings() {
@@ -184,6 +225,12 @@ class TextPaneCanvas extends JPanel implements MouseInputListener,
                 repaint();
             }
         });
+        try {
+        backgroundOption = BackgroundOption.valueOf(manager.getOption(domain,
+                "textpanebackgroundoption"));
+        } catch (IllegalArgumentException ex) {
+            backgroundOption = BackgroundOption.CENTER;
+        }
     }
 
     /**
