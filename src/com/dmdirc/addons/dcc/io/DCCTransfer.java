@@ -20,8 +20,10 @@
  * SOFTWARE.
  */
 
-package com.dmdirc.addons.dcc;
+package com.dmdirc.addons.dcc.io;
 
+import com.dmdirc.addons.dcc.DCCTransferHandler;
+import com.dmdirc.addons.dcc.io.DCC;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;

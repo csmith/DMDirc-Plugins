@@ -23,18 +23,18 @@
 package com.dmdirc.addons.dcc;
 
 import com.dmdirc.FrameContainer;
+import com.dmdirc.addons.dcc.io.DCCTransfer;
+import com.dmdirc.addons.dcc.io.DCC;
+import com.dmdirc.addons.dcc.io.DCCChat;
 import com.dmdirc.Main;
 import com.dmdirc.Server;
 import com.dmdirc.actions.ActionManager;
 import com.dmdirc.actions.CoreActionType;
 import com.dmdirc.actions.interfaces.ActionType;
-import com.dmdirc.addons.dcc.DCCFrame.EmptyFrame;
 import com.dmdirc.addons.dcc.kde.KFileChooser;
 import com.dmdirc.addons.dcc.actions.DCCActions;
-import com.dmdirc.addons.ui_swing.MainFrame;
 import com.dmdirc.addons.ui_swing.components.frames.TextFrame;
 import com.dmdirc.addons.ui_swing.components.text.TextLabel;
-import com.dmdirc.addons.ui_swing.dialogs.StandardQuestionDialog;
 import com.dmdirc.commandparser.CommandManager;
 import com.dmdirc.config.Identity;
 import com.dmdirc.config.IdentityManager;
@@ -51,7 +51,6 @@ import com.dmdirc.parser.interfaces.Parser;
 import com.dmdirc.plugins.Plugin;
 import com.dmdirc.ui.WindowManager;
 
-import java.awt.Dialog.ModalityType;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,10 +73,10 @@ public final class DCCPlugin extends Plugin implements ActionListener {
     private DCCCommand command;
 
     /** Our DCC Container window. */
-    private DCCFrame container;
+    private DCCFrameContainer container;
 
     /** Child Frames. */
-    private final List<DCCFrame> childFrames = new ArrayList<DCCFrame>();
+    private final List<DCCFrameContainer> childFrames = new ArrayList<DCCFrameContainer>();
 
     /**
      * Creates a new instance of the DCC Plugin.
@@ -164,7 +163,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
                         }
                     }
                     if (reverse && !token.isEmpty()) {
-                        new DCCTransferWindow(DCCPlugin.this, send, "*Receive: " + nickname, nickname, null);
+                        new TransferContainer(DCCPlugin.this, send, "*Receive: " + nickname, nickname, null);
                         send.setToken(token);
                         if (resume) {
                             if (IdentityManager.getGlobalConfig().getOptionBool(getDomain(), "receive.reverse.sendtoken")) {
@@ -180,7 +179,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
                             }
                         }
                     } else {
-                        new DCCTransferWindow(DCCPlugin.this, send, "Receive: " + nickname, nickname, null);
+                        new TransferContainer(DCCPlugin.this, send, "Receive: " + nickname, nickname, null);
                         if (resume) {
                             parser.sendCTCP(nickname, "DCC", "RESUME " + sendFilename + " " + send.getPort() + " " + jc.getSelectedFile().length());
                         } else {
@@ -261,7 +260,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
                             return;
                         }
                         final String myNickname = ((Server) arguments[0]).getParser().getLocalClient().getNickname();
-                        final DCCFrame f = new DCCChatWindow(this, chat, "Chat: " + nickname, myNickname, nickname);
+                        final DCCFrameContainer f = new ChatContainer(this, chat, "Chat: " + nickname, myNickname, nickname);
                         f.addLine("DCCChatStarting", nickname, chat.getHost(), chat.getPort());
                         chat.connect();
                     } else {
@@ -394,7 +393,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
 
                         // Now look for a dcc that matches.
                         for (DCCTransfer send : DCCTransfer.getTransfers()) {
-                            if (send.port == port && (new File(send.getFileName())).getName().equalsIgnoreCase(filename)) {
+                            if (send.getPort() == port && (new File(send.getFileName())).getName().equalsIgnoreCase(filename)) {
                                 if ((!token.isEmpty() && !send.getToken().isEmpty()) && (!token.equals(send.getToken()))) {
                                     continue;
                                 }
@@ -432,12 +431,8 @@ public final class DCCPlugin extends Plugin implements ActionListener {
      * Create the container window.
      */
     protected void createContainer() {
-        container = new PlaceholderDCCFrame(this);
-        final TextLabel label = new TextLabel("This is a placeholder window to group DCCs together.");
-        label.setText(label.getText() + "\n\nClosing this window will close all the active DCCs");
-        ((TextFrame) container.getFrame()).getContentPane().add(label);
+        container = new PlaceholderContainer(this);
         WindowManager.addWindow(container);
-        container.getFrame().open();
     }
 
     /**
@@ -445,7 +440,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
      *
      * @param window Window to remove
      */
-    protected synchronized void addWindow(final DCCFrame window) {
+    protected synchronized void addWindow(final DCCFrameContainer window) {
         if (window == container) {
             return;
         }
@@ -463,13 +458,13 @@ public final class DCCPlugin extends Plugin implements ActionListener {
      *
      * @param window Window to remove
      */
-    protected synchronized void delWindow(final DCCFrame window) {
+    protected synchronized void delWindow(final FrameContainer<?> window) {
         if (container == null) {
             return;
         }
         if (window == container) {
             container = null;
-            for (DCCFrame win : childFrames) {
+            for (DCCFrameContainer win : childFrames) {
                 if (win != window) {
                     win.close();
                 }
@@ -622,64 +617,3 @@ public final class DCCPlugin extends Plugin implements ActionListener {
     }
 
 }
-
-/**
- * Creates a placeholder DCC Frame.
- */
-class PlaceholderDCCFrame extends DCCFrame<EmptyFrame> {
-
-    /**
-     * Creates a placeholder dcc frame.
-     *
-     * @param plugin Parent plugin
-     */
-    public PlaceholderDCCFrame(final DCCPlugin plugin) {
-        super(plugin, "DCCs", "dcc", EmptyFrame.class, DCCCommandParser.getDCCCommandParser());
-    }
-
-    @Override
-    public void close() {
-        int dccs = 0;
-        for (FrameContainer<?> window : getChildren()) {
-            if (window instanceof DCCTransferWindow) {
-                if (((DCCTransferWindow) window).getDCC().isActive()) {
-                    dccs++;
-                }
-            } else if (window instanceof DCCChatWindow) {
-                if (((DCCChatWindow) window).getDCC().isActive()) {
-                    dccs++;
-                }
-            }
-        }
-
-        if (dccs > 0) {
-            new StandardQuestionDialog(
-                    (MainFrame) Main.getUI().getMainWindow(),
-                    ModalityType.MODELESS, "Close confirmation",
-                    "Closing this window will cause all existing DCCs " +
-                    "to terminate, are you sure you want to do this?") {
-                /**
-                 * A version number for this class. It should be changed whenever the class
-                 * structure is changed (or anything else that would prevent serialized
-                 * objects being unserialized with the new class).
-                 */
-                private static final long serialVersionUID = 1;
-
-                /** {@inheritDoc} */
-                @Override
-                public boolean save() {
-                    PlaceholderDCCFrame.super.close();
-                    return true;
-                }
-
-                /** {@inheritDoc} */
-                @Override
-                public void cancelled() {
-                }
-            }.display();
-        } else {
-            super.close();
-        }
-    }
-}
-

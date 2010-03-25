@@ -22,16 +22,21 @@
 
 package com.dmdirc.addons.dcc;
 
+import com.dmdirc.FrameContainer;
+import com.dmdirc.addons.dcc.io.DCCTransfer;
+import com.dmdirc.addons.dcc.io.DCC;
 import com.dmdirc.Server;
 import com.dmdirc.ServerState;
 import com.dmdirc.actions.ActionManager;
-import com.dmdirc.addons.dcc.DCCFrame.EmptyFrame;
+import com.dmdirc.addons.dcc.ui.EmptyWindow;
 import com.dmdirc.addons.dcc.actions.DCCActions;
 import com.dmdirc.config.IdentityManager;
 import com.dmdirc.logger.ErrorLevel;
 import com.dmdirc.logger.Logger;
 import com.dmdirc.parser.interfaces.Parser;
 import com.dmdirc.parser.interfaces.callbacks.SocketCloseListener;
+import com.dmdirc.ui.WindowManager;
+import com.dmdirc.ui.interfaces.Window;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
@@ -52,8 +57,14 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author Shane 'Dataforce' McCormack
  */
-public class DCCTransferWindow extends DCCFrame<EmptyFrame> implements DCCTransferHandler,
-        ActionListener, SocketCloseListener {
+public class TransferContainer extends FrameContainer<EmptyWindow>
+        implements DCCTransferHandler, ActionListener, SocketCloseListener {
+
+    /** The dcc plugin that owns this frame */
+    protected final DCCPlugin plugin;
+
+    /** The Window we're using. */
+    private boolean windowClosing = false;
 
     /** The DCCSend object we are a window for */
     private final DCCTransfer dcc;
@@ -110,11 +121,12 @@ public class DCCTransferWindow extends DCCFrame<EmptyFrame> implements DCCTransf
      * @param targetNick Nickname of target
      * @param server The server that initiated this send
      */
-    public DCCTransferWindow(final DCCPlugin plugin, final DCCTransfer dcc,
+    public TransferContainer(final DCCPlugin plugin, final DCCTransfer dcc,
             final String title, final String targetNick, final Server server) {
-        super(plugin, title, dcc.getType() == DCCTransfer.TransferType.SEND
+        super(dcc.getType() == DCCTransfer.TransferType.SEND
                 ? "dcc-send-inactive" : "dcc-receive-inactive",
-                EmptyFrame.class, DCCCommandParser.getDCCCommandParser());
+                title, title, EmptyWindow.class, IdentityManager.getGlobalConfig());
+        this.plugin = plugin;
         this.dcc = dcc;
         this.server = server;
         this.parser = server == null ? null : server.getParser();
@@ -365,7 +377,7 @@ public class DCCTransferWindow extends DCCFrame<EmptyFrame> implements DCCTransf
     @Override
     public void socketClosed(final DCCTransfer dcc) {
         ActionManager.processEvent(DCCActions.DCC_SEND_SOCKETCLOSED, null, this);
-        if (!isWindowClosing()) {
+        if (!windowClosing) {
             synchronized (this) {
                 if (transferCount == dcc.getFileSize() - dcc.getFileStart()) {
                     status.setText("Status: Transfer Compelete.");
@@ -411,9 +423,36 @@ public class DCCTransferWindow extends DCCFrame<EmptyFrame> implements DCCTransf
      */
     @Override
     public void windowClosing() {
-        super.windowClosing();
+        windowClosing = true;
+
+        // 1: Make the window non-visible
+        for (Window window : getWindows()) {
+            window.setVisible(false);
+        }
+
+        // 2: Remove any callbacks or listeners
+        // 3: Trigger any actions neccessary
         dcc.removeFromTransfers();
-        dcc.close();
+        
+        // 4: Trigger action for the window closing
+
+        // 5: Inform any parents that the window is closing
+        plugin.delWindow(this);
+
+        // 6: Remove the window from the window manager
+        WindowManager.removeWindow(this);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void windowClosed() {
+        // 7: Remove any references to the window and parents
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Server getServer() {
+        return null;
     }
 
 }
