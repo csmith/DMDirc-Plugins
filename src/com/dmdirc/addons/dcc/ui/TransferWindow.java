@@ -26,6 +26,11 @@ import com.dmdirc.FrameContainer;
 import com.dmdirc.addons.dcc.TransferContainer;
 import com.dmdirc.addons.dcc.io.DCCTransfer;
 import com.dmdirc.addons.ui_swing.SwingController;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -34,10 +39,31 @@ import net.miginfocom.swing.MigLayout;
  * @author chris
  * @since 0.6.4
  */
-public class TransferWindow extends EmptyWindow {
+public class TransferWindow extends EmptyWindow implements ActionListener {
 
     /** A version number for this class. */
     private static final long serialVersionUID = 1l;
+
+    /** Progress Bar */
+    private final JProgressBar progress = new JProgressBar();
+
+    /** Status Label */
+    private final JLabel status = new JLabel("Status: Waiting");
+
+    /** Speed Label */
+    private final JLabel speed = new JLabel("Speed: Unknown");
+
+    /** Time Label */
+    private final JLabel remaining = new JLabel("Time Remaining: Unknown");
+
+    /** Time Taken */
+    private final JLabel taken = new JLabel("Time Taken: 00:00");
+
+    /** Button */
+    private final JButton button = new JButton("Cancel");
+
+    /** Open Button */
+    private final JButton openButton = new JButton("Open");
 
     /**
      * Creates a new transfer window for the specified UI controller and owner.
@@ -45,7 +71,7 @@ public class TransferWindow extends EmptyWindow {
      * @param controller The UIController that owns this window
      * @param owner The frame container that owns this window
      */
-    public TransferWindow(SwingController controller, FrameContainer<?> owner) {
+    public TransferWindow(final SwingController controller, final FrameContainer<?> owner) {
         super(controller, owner);
         
         final TransferContainer container = (TransferContainer) owner;
@@ -55,23 +81,30 @@ public class TransferWindow extends EmptyWindow {
 
         if (dcc.getType() == DCCTransfer.TransferType.SEND) {
             add(new JLabel("Sending: " + dcc.getShortFileName()), "wrap");
-            add(new JLabel("To: " + targetNick), "wrap");
+            add(new JLabel("To: " + container.getOtherNickname()), "wrap");
         } else {
-            getContentPane().add(new JLabel("Recieving: " + dcc.getShortFileName()), "wrap");
-            getContentPane().add(new JLabel("From: " + targetNick), "wrap");
+            add(new JLabel("Recieving: " + dcc.getShortFileName()), "wrap");
+            add(new JLabel("From: " + container.getOtherNickname()), "wrap");
         }
-        getContentPane().add(status, "wrap");
-        getContentPane().add(speed, "wrap");
-        getContentPane().add(remaining, "wrap");
-        getContentPane().add(taken, "wrap");
-        getContentPane().add(progress, "growx, wrap");
+
+        add(status, "wrap");
+        add(speed, "wrap");
+        add(remaining, "wrap");
+        add(taken, "wrap");
+        add(progress, "growx, wrap");
 
         button.addActionListener(this);
         openButton.addActionListener(this);
         openButton.setVisible(false);
 
-        getContentPane().add(openButton, "split 2, align right");
-        getContentPane().add(button, "align right");
+        add(openButton, "split 2, align right");
+        add(button, "align right");
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

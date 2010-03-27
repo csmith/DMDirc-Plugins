@@ -43,6 +43,7 @@ public class PlaceholderContainer extends DCCFrameContainer<PlaceholderWindow> {
         super(plugin, "DCCs", "dcc", PlaceholderWindow.class, DCCCommandParser.getDCCCommandParser());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         int dccs = 0;

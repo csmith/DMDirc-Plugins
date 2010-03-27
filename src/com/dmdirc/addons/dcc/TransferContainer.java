@@ -40,15 +40,12 @@ import com.dmdirc.ui.interfaces.Window;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -57,8 +54,8 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author Shane 'Dataforce' McCormack
  */
-public class TransferContainer extends FrameContainer<EmptyWindow>
-        implements DCCTransferHandler, ActionListener, SocketCloseListener {
+public class TransferContainer extends FrameContainer<EmptyWindow> implements
+        DCCTransferHandler, SocketCloseListener {
 
     /** The dcc plugin that owns this frame */
     protected final DCCPlugin plugin;
@@ -77,27 +74,6 @@ public class TransferContainer extends FrameContainer<EmptyWindow>
 
     /** Time Started */
     private long timeStarted = 0;
-
-    /** Progress Bar */
-    private final JProgressBar progress = new JProgressBar();
-
-    /** Status Label */
-    private final JLabel status = new JLabel("Status: Waiting");
-
-    /** Speed Label */
-    private final JLabel speed = new JLabel("Speed: Unknown");
-
-    /** Time Label */
-    private final JLabel remaining = new JLabel("Time Remaining: Unknown");
-
-    /** Time Taken */
-    private final JLabel taken = new JLabel("Time Taken: 00:00");
-
-    /** Button */
-    private final JButton button = new JButton("Cancel");
-
-    /** Open Button */
-    private final JButton openButton = new JButton("Open");
 
     /** Plugin that this send belongs to. */
     private final DCCPlugin myPlugin;
@@ -139,33 +115,6 @@ public class TransferContainer extends FrameContainer<EmptyWindow>
 
         otherNickname = targetNick;
 
-        getContentPane().setLayout(new MigLayout("hidemode 0"));
-
-        progress.setMinimum(0);
-        progress.setMaximum(100);
-        progress.setStringPainted(true);
-        progress.setValue(0);
-
-        if (dcc.getType() == DCCTransfer.TransferType.SEND) {
-            getContentPane().add(new JLabel("Sending: " + dcc.getShortFileName()), "wrap");
-            getContentPane().add(new JLabel("To: " + targetNick), "wrap");
-        } else {
-            getContentPane().add(new JLabel("Recieving: " + dcc.getShortFileName()), "wrap");
-            getContentPane().add(new JLabel("From: " + targetNick), "wrap");
-        }
-        getContentPane().add(status, "wrap");
-        getContentPane().add(speed, "wrap");
-        getContentPane().add(remaining, "wrap");
-        getContentPane().add(taken, "wrap");
-        getContentPane().add(progress, "growx, wrap");
-
-        button.addActionListener(this);
-        openButton.addActionListener(this);
-        openButton.setVisible(false);
-
-        getContentPane().add(openButton, "split 2, align right");
-        getContentPane().add(button, "align right");
-
         plugin.addWindow(this);
     }
 
@@ -188,6 +137,16 @@ public class TransferContainer extends FrameContainer<EmptyWindow>
      */
     public DCCTransfer getDCC() {
         return dcc;
+    }
+
+    /**
+     * Retrieves the nickname of the other party involved in this transfer.
+     *
+     * @return The other party's nickname
+     * @since 0.6.4
+     */
+    public String getOtherNickname() {
+        return otherNickname;
     }
 
     /**
