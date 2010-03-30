@@ -103,7 +103,7 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
         if (parser != null) {
             parser.getCallbackManager().addNonCriticalCallback(SocketCloseListener.class, this);
         }
-        dcc.setHandler(this);
+        dcc.addHandler(this);
 
         otherNickname = targetNick;
 
