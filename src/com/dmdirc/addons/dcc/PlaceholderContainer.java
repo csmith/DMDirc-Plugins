@@ -24,23 +24,23 @@ package com.dmdirc.addons.dcc;
 
 import com.dmdirc.FrameContainer;
 import com.dmdirc.Main;
+import com.dmdirc.Server;
 import com.dmdirc.addons.dcc.ui.PlaceholderWindow;
 import com.dmdirc.addons.ui_swing.MainFrame;
 import com.dmdirc.addons.ui_swing.dialogs.StandardQuestionDialog;
+import com.dmdirc.config.IdentityManager;
 import java.awt.Dialog.ModalityType;
 
 /**
  * Creates a placeholder DCC Frame.
  */
-public class PlaceholderContainer extends DCCFrameContainer<PlaceholderWindow> {
+public class PlaceholderContainer extends FrameContainer<PlaceholderWindow> {
 
     /**
      * Creates a placeholder dcc frame.
-     *
-     * @param plugin Parent plugin
      */
-    public PlaceholderContainer(final DCCPlugin plugin) {
-        super(plugin, "DCCs", "dcc", PlaceholderWindow.class, DCCCommandParser.getDCCCommandParser());
+    public PlaceholderContainer() {
+        super("dcc", "DCCs", "DCCs", PlaceholderWindow.class, IdentityManager.getGlobalConfig());
     }
 
     /** {@inheritDoc} */
@@ -87,5 +87,20 @@ public class PlaceholderContainer extends DCCFrameContainer<PlaceholderWindow> {
         } else {
             super.close();
         }
+    }
+
+    @Override
+    public Server getServer() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowClosing() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowClosed() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

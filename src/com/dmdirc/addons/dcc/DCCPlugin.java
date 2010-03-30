@@ -33,8 +33,6 @@ import com.dmdirc.actions.CoreActionType;
 import com.dmdirc.actions.interfaces.ActionType;
 import com.dmdirc.addons.dcc.kde.KFileChooser;
 import com.dmdirc.addons.dcc.actions.DCCActions;
-import com.dmdirc.addons.ui_swing.components.frames.TextFrame;
-import com.dmdirc.addons.ui_swing.components.text.TextLabel;
 import com.dmdirc.commandparser.CommandManager;
 import com.dmdirc.config.Identity;
 import com.dmdirc.config.IdentityManager;
@@ -53,8 +51,6 @@ import com.dmdirc.ui.WindowManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -73,10 +69,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
     private DCCCommand command;
 
     /** Our DCC Container window. */
-    private DCCFrameContainer container;
-
-    /** Child Frames. */
-    private final List<DCCFrameContainer> childFrames = new ArrayList<DCCFrameContainer>();
+    private PlaceholderContainer container;
 
     /**
      * Creates a new instance of the DCC Plugin.
@@ -260,7 +253,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
                             return;
                         }
                         final String myNickname = ((Server) arguments[0]).getParser().getLocalClient().getNickname();
-                        final DCCFrameContainer f = new ChatContainer(this, chat, "Chat: " + nickname, myNickname, nickname);
+                        final DCCFrameContainer<?> f = new ChatContainer(this, chat, "Chat: " + nickname, myNickname, nickname);
                         f.addLine("DCCChatStarting", nickname, chat.getHost(), chat.getPort());
                         chat.connect();
                     } else {
@@ -431,7 +424,7 @@ public final class DCCPlugin extends Plugin implements ActionListener {
      * Create the container window.
      */
     protected void createContainer() {
-        container = new PlaceholderContainer(this);
+        container = new PlaceholderContainer();
         WindowManager.addWindow(container);
     }
 
@@ -440,17 +433,16 @@ public final class DCCPlugin extends Plugin implements ActionListener {
      *
      * @param window Window to remove
      */
-    protected synchronized void addWindow(final DCCFrameContainer window) {
+    protected synchronized void addWindow(final FrameContainer<?> window) {
         if (window == container) {
             return;
         }
+        
         if (container == null) {
             createContainer();
         }
 
         WindowManager.addWindow(container, window);
-        childFrames.add(window);
-        window.getFrame().open();
     }
 
     /**
@@ -464,18 +456,14 @@ public final class DCCPlugin extends Plugin implements ActionListener {
         }
         if (window == container) {
             container = null;
-            for (DCCFrameContainer win : childFrames) {
+            for (FrameContainer<?> win : window.getChildren()) {
                 if (win != window) {
                     win.close();
                 }
             }
-            childFrames.clear();
-        } else {
-            childFrames.remove(window);
-            if (childFrames.isEmpty()) {
-                container.close();
-                container = null;
-            }
+        } else if (container.getChildren().isEmpty()) {
+            container.close();
+            container = null;
         }
     }
 
