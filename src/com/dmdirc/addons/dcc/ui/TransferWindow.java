@@ -95,8 +95,7 @@ public class TransferWindow extends EmptyWindow implements ActionListener,
         dcc = container.getDCC();
 
         dcc.addHandler(this);
-        container.getServer().getParser().getCallbackManager()
-                .addNonCriticalCallback(SocketCloseListener.class, this);
+        container.addSocketCloseCallback(this);
 
         setLayout(new MigLayout("hidemode 0"));
 

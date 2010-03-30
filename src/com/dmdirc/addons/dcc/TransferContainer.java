@@ -367,6 +367,13 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
         // 7: Remove any references to the window and parents
     }
 
+    public void addSocketCloseCallback(final SocketCloseListener listener) {
+        if (server != null && server.getParser() != null) {
+            server.getParser().getCallbackManager()
+                    .addNonCriticalCallback(SocketCloseListener.class, listener);
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public Server getServer() {
