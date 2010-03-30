@@ -25,6 +25,7 @@ package com.dmdirc.addons.dcc;
 import com.dmdirc.addons.dcc.io.DCCChat;
 import com.dmdirc.actions.ActionManager;
 import com.dmdirc.addons.dcc.actions.DCCActions;
+import com.dmdirc.ui.WindowManager;
 import com.dmdirc.ui.interfaces.InputWindow;
 
 /**
@@ -61,9 +62,7 @@ public class ChatContainer extends DCCFrameContainer<InputWindow> implements DCC
         nickname = nick;
         otherNickname = targetNick;
 
-        plugin.addWindow(this);
-
-        setTitle(title);
+        WindowManager.addWindow(plugin.getContainer(), this);
     }
 
     /**

@@ -48,10 +48,9 @@ public class PlaceholderWindow extends EmptyWindow {
             final FrameContainer<?> owner) {
         super(controller, owner);
 
-        final TextLabel label = new TextLabel(
+        add(new TextLabel(
                 "This is a placeholder window to group DCCs together."
-                + "\n\nClosing this window will close all the active DCCs");
-        add(label);
+                + "\n\nClosing this window will close all the active DCCs"));
     }
 
 }

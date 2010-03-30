@@ -119,4 +119,14 @@ public class PlaceholderContainer extends FrameContainer<PlaceholderWindow> {
     public void windowClosed() {
         // 7: Remove any references to the window and parents
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public void removeChild(final FrameContainer<?> child) {
+        super.removeChild(child);
+
+        if (getChildren().isEmpty()) {
+            close();
+        }
+    }
 }

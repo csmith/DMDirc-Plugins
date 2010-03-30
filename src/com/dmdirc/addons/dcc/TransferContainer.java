@@ -107,7 +107,7 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
 
         otherNickname = targetNick;
 
-        plugin.addWindow(this);
+        WindowManager.addWindow(plugin.getContainer(), this);
     }
 
     /** {@inheritDoc} */
@@ -353,10 +353,7 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
         dcc.removeFromTransfers();
         
         // 4: Trigger action for the window closing
-
         // 5: Inform any parents that the window is closing
-        plugin.delWindow(this);
-
         // 6: Remove the window from the window manager
         WindowManager.removeWindow(this);
     }

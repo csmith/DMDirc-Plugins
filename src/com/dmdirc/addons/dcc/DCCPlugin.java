@@ -421,50 +421,25 @@ public final class DCCPlugin extends Plugin implements ActionListener {
     }
 
     /**
+     * Retrieves the container for the placeholder.
+     *
+     * @since 0.6.4
+     * @return This plugin's placeholder container
+     */
+    public synchronized PlaceholderContainer getContainer() {
+        if (container == null) {
+            createContainer();
+        }
+
+        return container;
+    }
+
+    /**
      * Create the container window.
      */
     protected void createContainer() {
         container = new PlaceholderContainer();
         WindowManager.addWindow(container);
-    }
-
-    /**
-     * Add a window to the container window.
-     *
-     * @param window Window to remove
-     */
-    protected synchronized void addWindow(final FrameContainer<?> window) {
-        if (window == container) {
-            return;
-        }
-        
-        if (container == null) {
-            createContainer();
-        }
-
-        WindowManager.addWindow(container, window);
-    }
-
-    /**
-     * Remove a window from the container window.
-     *
-     * @param window Window to remove
-     */
-    protected synchronized void delWindow(final FrameContainer<?> window) {
-        if (container == null) {
-            return;
-        }
-        if (window == container) {
-            container = null;
-            for (FrameContainer<?> win : window.getChildren()) {
-                if (win != window) {
-                    win.close();
-                }
-            }
-        } else if (container.getChildren().isEmpty()) {
-            container.close();
-            container = null;
-        }
     }
 
     /** {@inheritDoc} */
