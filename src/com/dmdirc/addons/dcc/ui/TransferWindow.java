@@ -23,12 +23,11 @@
 package com.dmdirc.addons.dcc.ui;
 
 import com.dmdirc.FrameContainer;
-import com.dmdirc.Server;
-import com.dmdirc.ServerState;
+import com.dmdirc.addons.dcc.DCCTransferHandler;
 import com.dmdirc.addons.dcc.TransferContainer;
 import com.dmdirc.addons.dcc.io.DCCTransfer;
 import com.dmdirc.addons.ui_swing.SwingController;
-import com.dmdirc.config.IdentityManager;
+import com.dmdirc.addons.ui_swing.UIUtilities;
 import com.dmdirc.logger.ErrorLevel;
 import com.dmdirc.logger.Logger;
 import com.dmdirc.parser.interfaces.Parser;
@@ -43,7 +42,6 @@ import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import net.miginfocom.swing.MigLayout;
@@ -55,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
  * @since 0.6.4
  */
 public class TransferWindow extends EmptyWindow implements ActionListener,
-        SocketCloseListener {
+        SocketCloseListener, DCCTransferHandler {
 
     /** A version number for this class. */
     private static final long serialVersionUID = 1l;
@@ -134,51 +132,8 @@ public class TransferWindow extends EmptyWindow implements ActionListener,
         } else if (e.getActionCommand().equals("Resend")) {
             button.setText("Cancel");
             status.setText("Status: Resending...");
-            synchronized (this) {
-                transferCount = 0;
-            }
-            dcc.reset();
 
-            final Server server = ((TransferContainer) frameParent).getServer();
-
-            if (server != null && server.getState() == ServerState.CONNECTED) {
-                final String myNickname = server.getParser().getLocalClient().getNickname();
-                // Check again incase we have changed nickname to the same nickname that
-                // this send is for.
-                if (server.getParser().getStringConverter().equalsIgnoreCase(
-                        ((TransferContainer) frameParent).getOtherNickname(), myNickname)) {
-                    final Thread errorThread = new Thread(new Runnable() {
-
-                        /** {@inheritDoc} */
-                        @Override
-                        public void run() {
-                            JOptionPane.showMessageDialog(null,
-                                    "You can't DCC yourself.", "DCC Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-
-                    });
-                    errorThread.start();
-                    return;
-                } else {
-                    if (IdentityManager.getGlobalConfig().getOptionBool(
-                            plugin.getDomain(), "send.reverse")) {
-                        parser.sendCTCP(otherNickname, "DCC", "SEND \"" +
-                                new File(dcc.getFileName()).getName() + "\" "
-                                + DCC.ipToLong(myPlugin.getListenIP(parser))
-                                + " 0 " + dcc.getFileSize() + " " + dcc.makeToken()
-                                + ((dcc.isTurbo()) ? " T" : ""));
-                        return;
-                    } else if (plugin.listen(dcc)) {
-                        parser.sendCTCP(otherNickname, "DCC", "SEND \""
-                                + new File(dcc.getFileName()).getName() + "\" "
-                                + DCC.ipToLong(myPlugin.getListenIP(parser)) + " "
-                                + dcc.getPort() + " " + dcc.getFileSize()
-                                + ((dcc.isTurbo()) ? " T" : ""));
-                        return;
-                    }
-                }
-            } else {
+            if (!((TransferContainer) frameParent).resend()) {
                 status.setText("Status: Resend failed.");
                 button.setText("Close Window");
             }
@@ -214,6 +169,107 @@ public class TransferWindow extends EmptyWindow implements ActionListener,
         if ("Resend".equals(button.getText())) {
             button.setText("Close Window");
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void socketClosed(final DCCTransfer dcc) {
+        UIUtilities.invokeLater(new Runnable() {
+
+            private final TransferContainer container = (TransferContainer) frameParent;
+
+            /** {@inheritDoc} */
+            @Override
+            public void run() {
+                if (container.isComplete()) {
+                    status.setText("Status: Transfer Compelete.");
+
+                    if (container.shouldShowOpenButton()) {
+                        openButton.setVisible(true);
+                    }
+                    
+                    progress.setValue(100);
+                    button.setText("Close Window");
+                } else {
+                    status.setText("Status: Transfer Failed.");
+                    if (dcc.getType() == DCCTransfer.TransferType.SEND) {
+                        button.setText("Resend");
+                    } else {
+                        button.setText("Close Window");
+                    }
+                }
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void socketOpened(final DCCTransfer dcc) {
+        UIUtilities.invokeLater(new Runnable() {
+
+            /** {@inheritDoc} */
+            @Override
+            public void run() {
+                status.setText("Status: Socket Opened");
+            }
+
+        });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void dataTransfered(final DCCTransfer dcc, final int bytes) {
+        UIUtilities.invokeLater(new Runnable() {
+
+            private final TransferContainer container = (TransferContainer) frameParent;
+
+            /** {@inheritDoc} */
+            @Override
+            public void run() {
+                if (dcc.getType() == DCCTransfer.TransferType.SEND) {
+                    status.setText("Status: Sending");
+                } else {
+                    status.setText("Status: Recieving");
+                }
+
+                progress.setValue((int) container.getPercent());
+
+                final double bytesPerSecond = container.getBytesPerSecond();
+
+                if (bytesPerSecond > 1048576) {
+                    speed.setText(String.format("Speed: %.2f MiB/s", bytesPerSecond / 1048576));
+                } else if (bytesPerSecond > 1024) {
+                    speed.setText(String.format("Speed: %.2f KiB/s", bytesPerSecond / 1024));
+                } else {
+                    speed.setText(String.format("Speed: %.2f B/s", bytesPerSecond));
+                }
+
+                remaining.setText(String.format("Time Remaining: %s",
+                        duration((int) container.getRemainingTime())));
+                taken.setText(String.format("Time Taken: %s", container.getStartTime() == 0
+                        ? "N/A" : duration(container.getElapsedTime())));
+            }
+        });
+    }
+
+    /**
+     * Get the duration in seconds as a string.
+     *
+     * @param secondsInput to get duration for
+     * @return Duration as a string
+     */
+    private String duration(final long secondsInput) {
+        final StringBuilder result = new StringBuilder();
+        final long hours = (secondsInput / 3600);
+        final long minutes = (secondsInput / 60 % 60);
+        final long seconds = (secondsInput % 60);
+
+        if (hours > 0) {
+            result.append(hours + ":");
+        }
+        result.append(String.format("%0,2d:%0,2d", minutes, seconds));
+
+        return result.toString();
     }
 
 }

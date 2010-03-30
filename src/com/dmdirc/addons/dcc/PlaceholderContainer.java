@@ -29,6 +29,8 @@ import com.dmdirc.addons.dcc.ui.PlaceholderWindow;
 import com.dmdirc.addons.ui_swing.MainFrame;
 import com.dmdirc.addons.ui_swing.dialogs.StandardQuestionDialog;
 import com.dmdirc.config.IdentityManager;
+import com.dmdirc.ui.WindowManager;
+import com.dmdirc.ui.interfaces.Window;
 import java.awt.Dialog.ModalityType;
 
 /**
@@ -89,18 +91,32 @@ public class PlaceholderContainer extends FrameContainer<PlaceholderWindow> {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Server getServer() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void windowClosing() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // 1: Make the window non-visible
+        for (Window window : getWindows()) {
+            window.setVisible(false);
+        }
+
+        // 2: Remove any callbacks or listeners
+        // 3: Trigger any actions neccessary
+        // 4: Trigger action for the window closing
+        // 5: Inform any parents that the window is closing
+
+        // 6: Remove the window from the window manager
+        WindowManager.removeWindow(this);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void windowClosed() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // 7: Remove any references to the window and parents
     }
 }

@@ -24,6 +24,7 @@ package com.dmdirc.addons.dcc;
 
 import com.dmdirc.FrameContainer;
 import com.dmdirc.Server;
+import com.dmdirc.ServerState;
 import com.dmdirc.actions.ActionManager;
 import com.dmdirc.addons.dcc.actions.DCCActions;
 import com.dmdirc.addons.dcc.io.DCCTransfer;
@@ -35,7 +36,10 @@ import com.dmdirc.ui.WindowManager;
 import com.dmdirc.ui.interfaces.Window;
 
 import java.awt.Desktop;
+import java.io.File;
 import java.util.Date;
+
+import javax.swing.JOptionPane;
 
 /**
  * This class links DCC Send objects to a window.
@@ -144,17 +148,11 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
         final double percent;
         synchronized (this) {
             transferCount += bytes;
-            percent = (100.00 / dcc.getFileSize()) * (transferCount + dcc.getFileStart());
+            percent = getPercent();
         }
 
         boolean percentageInTitle = IdentityManager.getGlobalConfig().getOptionBool(
                             plugin.getDomain(), "general.percentageInTitle");
-
-        if (dcc.getType() == DCCTransfer.TransferType.SEND) {
-            status.setText("Status: Sending");
-        } else {
-            status.setText("Status: Recieving");
-        }
 
         if (percentageInTitle) {
             final StringBuilder title = new StringBuilder();
@@ -166,62 +164,89 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
             setTitle(title.toString());
         }
 
-        updateSpeedAndTime();
-
-        progress.setValue((int) Math.floor(percent));
-
         ActionManager.processEvent(DCCActions.DCC_SEND_DATATRANSFERED, null, this, bytes);
     }
 
     /**
-     * Update the transfer speed, time remaining and time taken labels.
+     * Retrieves the current percentage progress of this transfer.
+     *
+     * @since 0.6.4
+     * @return The percentage of this transfer that has been completed
      */
-    public void updateSpeedAndTime() {
-        final long time = (System.currentTimeMillis() - timeStarted) / 1000;
-        final double bytesPerSecond;
-        synchronized (this) {
-            bytesPerSecond = (time > 0) ? (transferCount / time) : transferCount;
-        }
-
-        if (bytesPerSecond > 1048576) {
-            speed.setText(String.format("Speed: %.2f MB/s", (bytesPerSecond / 1048576)));
-        } else if (bytesPerSecond > 1024) {
-            speed.setText(String.format("Speed: %.2f KB/s", (bytesPerSecond / 1024)));
-        } else {
-            speed.setText(String.format("Speed: %.2f B/s", bytesPerSecond));
-        }
-
-        final long remaningBytes;
-        synchronized (this) {
-            remaningBytes = dcc.getFileSize() - dcc.getFileStart() - transferCount;
-        }
-        final double remainingSeconds = bytesPerSecond > 0
-                ? (remaningBytes / bytesPerSecond) : 1;
-
-        remaining.setText(String.format("Time Remaining: %s", duration(
-                (int) Math.floor(remainingSeconds))));
-        taken.setText(String.format("Time Taken: %s", timeStarted == 0
-                ? "N/A" : duration(time)));
+    public double getPercent() {
+        return (100.00 / dcc.getFileSize()) * (transferCount + dcc.getFileStart());
     }
 
     /**
-     * Get the duration in seconds as a string.
+     * Retrieves the current transfer speed of this transfer.
      *
-     * @param secondsInput to get duration for
-     * @return Duration as a string
+     * @since 0.6.4
+     * @return The speed of this transfer in Bytes/Sec
      */
-    private String duration(final long secondsInput) {
-        final StringBuilder result = new StringBuilder();
-        final long hours = (secondsInput / 3600);
-        final long minutes = (secondsInput / 60 % 60);
-        final long seconds = (secondsInput % 60);
+    public double getBytesPerSecond() {
+        final long time = getElapsedTime();
 
-        if (hours > 0) {
-            result.append(hours + ":");
+        synchronized (this) {
+            return time > 0 ? (transferCount / time) : transferCount;
         }
-        result.append(String.format("%0,2d:%0,2d", minutes, seconds));
+    }
 
-        return result.toString();
+    /**
+     * Retrieves the estimated time remaining for this transfer.
+     *
+     * @since 0.6.4
+     * @return The number of seconds estimated for this transfer to complete
+     */
+    public double getRemainingTime() {
+        final double bytesPerSecond = getBytesPerSecond();
+        final long remaningBytes;
+
+        synchronized (this) {
+            remaningBytes = dcc.getFileSize() - dcc.getFileStart() - transferCount;
+        }
+
+        return bytesPerSecond > 0 ? (remaningBytes / bytesPerSecond) : 1;
+    }
+
+    /**
+     * Retrieves the timestamp at which this transfer started.
+     *
+     * @since 0.6.4
+     * @return The timestamp (milliseconds since 01/01/1970) at which this transfer started.
+     */
+    public long getStartTime() {
+        return timeStarted;
+    }
+
+    /**
+     * Retrieves the number of seconds that this transfer has been running for.
+     *
+     * @since 0.6.4
+     * @return The number of seconds elapsed since this transfer started
+     */
+    public long getElapsedTime() {
+        return (System.currentTimeMillis() - timeStarted) / 1000;
+    }
+
+    /**
+     * Determines whether this transfer is complete or not.
+     *
+     * @since 0.6.4
+     * @return True if the transfer is complete, false otherwise
+     */
+    public boolean isComplete() {
+        return transferCount == dcc.getFileSize() - dcc.getFileStart();
+    }
+
+    /**
+     * Determines whether the "Open" button should be displayed for this
+     * transfer.
+     *
+     * @since 0.6.4
+     * @return True if the open button should be displayed, false otherwise
+     */
+    public boolean shouldShowOpenButton() {
+        return showOpen && dcc.getType() == DCCTransfer.TransferType.RECEIVE;
     }
 
     /**
@@ -235,27 +260,13 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
         if (!windowClosing) {
             synchronized (this) {
                 if (transferCount == dcc.getFileSize() - dcc.getFileStart()) {
-                    status.setText("Status: Transfer Compelete.");
-
-                    if (showOpen && dcc.getType() == DCCTransfer.TransferType.RECEIVE) {
-                        openButton.setVisible(true);
-                    }
-                    progress.setValue(100);
                     setIcon(dcc.getType() == DCCTransfer.TransferType.SEND
                             ? "dcc-send-done" : "dcc-receive-done");
-                    button.setText("Close Window");
                 } else {
-                    status.setText("Status: Transfer Failed.");
                     setIcon(dcc.getType() == DCCTransfer.TransferType.SEND
                             ? "dcc-send-failed" : "dcc-receive-failed");
-                    if (dcc.getType() == DCCTransfer.TransferType.SEND) {
-                        button.setText("Resend");
-                    } else {
-                        button.setText("Close Window");
-                    }
                 }
             }
-            updateSpeedAndTime();
         }
     }
 
@@ -267,10 +278,62 @@ public class TransferContainer extends FrameContainer<TransferWindow> implements
     @Override
     public void socketOpened(final DCCTransfer dcc) {
         ActionManager.processEvent(DCCActions.DCC_SEND_SOCKETOPENED, null, this);
-        status.setText("Status: Socket Opened");
         timeStarted = System.currentTimeMillis();
         setIcon(dcc.getType() == DCCTransfer.TransferType.SEND
                 ? "dcc-send-active" : "dcc-receive-active");
+    }
+
+    /**
+     * Attempts to resend the transfer.
+     *
+     * @since 0.6.4
+     * @return True if the transfer could be resent, false otherwise
+     */
+    public boolean resend() {
+        synchronized (this) {
+            transferCount = 0;
+        }
+        dcc.reset();
+
+        if (server != null && server.getState() == ServerState.CONNECTED) {
+            final String myNickname = server.getParser().getLocalClient().getNickname();
+            // Check again incase we have changed nickname to the same nickname that
+            // this send is for.
+            if (server.getParser().getStringConverter().equalsIgnoreCase(
+                    otherNickname, myNickname)) {
+                final Thread errorThread = new Thread(new Runnable() {
+
+                    /** {@inheritDoc} */
+                    @Override
+                    public void run() {
+                        JOptionPane.showMessageDialog(null,
+                                "You can't DCC yourself.", "DCC Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+
+                });
+                errorThread.start();
+            } else {
+                if (IdentityManager.getGlobalConfig().getOptionBool(
+                        plugin.getDomain(), "send.reverse")) {
+                    parser.sendCTCP(otherNickname, "DCC", "SEND \"" +
+                            new File(dcc.getFileName()).getName() + "\" "
+                            + DCC.ipToLong(myPlugin.getListenIP(parser))
+                            + " 0 " + dcc.getFileSize() + " " + dcc.makeToken()
+                            + ((dcc.isTurbo()) ? " T" : ""));
+                } else if (plugin.listen(dcc)) {
+                    parser.sendCTCP(otherNickname, "DCC", "SEND \""
+                            + new File(dcc.getFileName()).getName() + "\" "
+                            + DCC.ipToLong(myPlugin.getListenIP(parser)) + " "
+                            + dcc.getPort() + " " + dcc.getFileSize()
+                            + ((dcc.isTurbo()) ? " T" : ""));
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

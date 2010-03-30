@@ -22,7 +22,7 @@
 
 package com.dmdirc.addons.dcc.ui;
 
-import com.dmdirc.WritableFrameContainer;
+import com.dmdirc.FrameContainer;
 import com.dmdirc.addons.ui_swing.SwingController;
 import com.dmdirc.addons.ui_swing.components.text.TextLabel;
 
@@ -45,7 +45,7 @@ public class PlaceholderWindow extends EmptyWindow {
      * @param owner The frame container that owns this window
      */
     public PlaceholderWindow(final SwingController controller,
-            final WritableFrameContainer<?> owner) {
+            final FrameContainer<?> owner) {
         super(controller, owner);
 
         final TextLabel label = new TextLabel(
