@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.dcc;
 
-import com.dmdirc.FrameContainer;
 import com.dmdirc.addons.dcc.io.DCCTransfer;
 import com.dmdirc.addons.dcc.io.DCC;
 import com.dmdirc.addons.dcc.io.DCCChat;
@@ -435,10 +434,19 @@ public final class DCCPlugin extends Plugin implements ActionListener {
     }
 
     /**
+     * Removes the cached container.
+     *
+     * @since 0.6.4
+     */
+    public synchronized void removeContainer() {
+        container = null;
+    }
+
+    /**
      * Create the container window.
      */
     protected void createContainer() {
-        container = new PlaceholderContainer();
+        container = new PlaceholderContainer(this);
         WindowManager.addWindow(container);
     }
 

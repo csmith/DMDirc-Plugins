@@ -38,11 +38,18 @@ import java.awt.Dialog.ModalityType;
  */
 public class PlaceholderContainer extends FrameContainer<PlaceholderWindow> {
 
+    /** The plugin which owns this placeholder. */
+    private final DCCPlugin plugin;
+
     /**
      * Creates a placeholder dcc frame.
+     *
+     * @param plugin The plugin which owns this placeholder
      */
-    public PlaceholderContainer() {
+    public PlaceholderContainer(final DCCPlugin plugin) {
         super("dcc", "DCCs", "DCCs", PlaceholderWindow.class, IdentityManager.getGlobalConfig());
+
+        this.plugin = plugin;
     }
 
     /** {@inheritDoc} */
@@ -109,6 +116,7 @@ public class PlaceholderContainer extends FrameContainer<PlaceholderWindow> {
         // 3: Trigger any actions neccessary
         // 4: Trigger action for the window closing
         // 5: Inform any parents that the window is closing
+        plugin.removeContainer();
 
         // 6: Remove the window from the window manager
         WindowManager.removeWindow(this);
