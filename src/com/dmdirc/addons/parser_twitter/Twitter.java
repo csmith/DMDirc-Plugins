@@ -267,7 +267,13 @@ public class Twitter implements Parser, TwitterErrorHandler, TwitterRawHandler, 
                             this.channels.put(channel, newChannel);
                         }
                     } catch (NumberFormatException nfe) { }
+                } else if (channel.startsWith("#")) {
+                    newChannel.setLocalTopic("Search results for " + channel);
+                    synchronized (this.channels) {
+                        this.channels.put(channel, newChannel);
+                    }
                 }
+                
                 doJoinChannel(newChannel);
             } else {
                 sendNumericOutput(474, new String[]{":"+myServerName, "474", myself.getNickname(), channel, "Cannot join channel - name is not valid, or you are already there."});
@@ -1103,7 +1109,10 @@ public class Twitter implements Parser, TwitterErrorHandler, TwitterRawHandler, 
                             = api.getSearchResults(searchChannel.getName(), lastId);
 
                     for (TwitterStatus status : statuses) {
-                        sendChannelMessage(searchChannel, status.getText());
+                        final ChannelClientInfo cci
+                                = channel.getChannelClient(status.getUser().getScreenName(), true);
+                        sendChannelMessage(searchChannel, new Date(status.getTime()),
+                                status.getText(), cci, status.getUser().getScreenName());
                     }
                 }
             }

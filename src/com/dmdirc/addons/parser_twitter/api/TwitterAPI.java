@@ -1158,7 +1158,7 @@ public class TwitterAPI {
 
                     final long time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(TwitterAPI.getElementContents(element, "published", "")).getTime();
 
-                    result.add(new TwitterStatus(this, message, -1, id, user, time));
+                    result.add(0, new TwitterStatus(this, message, -1, id, user, time));
                 }
             }
         } catch (UnsupportedEncodingException ex) {
