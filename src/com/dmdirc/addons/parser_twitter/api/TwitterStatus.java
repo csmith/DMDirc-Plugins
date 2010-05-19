@@ -176,6 +176,15 @@ public class TwitterStatus implements Comparable<TwitterStatus> {
     }
 
     /**
+     * Retrieves the username of the owner of this message.
+     *
+     * @return This message's owner.
+     */
+    public String getUserName() {
+        return retweet ? originalStatus.getUserName() : user;
+    }
+
+    /**
      * Get the contents of this message
      *
      * @return contents of this message.

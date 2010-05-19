@@ -1103,17 +1103,20 @@ public class Twitter implements Parser, TwitterErrorHandler, TwitterRawHandler, 
 
             for (TwitterChannelInfo searchChannel : channels.values()) {
                 if (searchChannel.getName().startsWith("#")) {
-                    final long lastId = lastSearchIds.containsKey(searchChannel)
+                    long lastId = lastSearchIds.containsKey(searchChannel)
                             ? lastSearchIds.get(searchChannel) : -1;
                     final List<TwitterStatus> statuses
                             = api.getSearchResults(searchChannel.getName(), lastId);
 
                     for (TwitterStatus status : statuses) {
-                        final ChannelClientInfo cci
-                                = channel.getChannelClient(status.getUser().getScreenName(), true);
+                        final ChannelClientInfo cci = searchChannel
+                                .getChannelClient(status.getUserName(), true);
                         sendChannelMessage(searchChannel, new Date(status.getTime()),
-                                status.getText(), cci, status.getUser().getScreenName());
+                                status.getText(), cci, status.getUserName());
+                        lastId = Math.max(lastId, status.getID());
                     }
+
+                    lastSearchIds.put(searchChannel, lastId);
                 }
             }
 
