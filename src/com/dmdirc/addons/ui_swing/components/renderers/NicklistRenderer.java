@@ -23,6 +23,7 @@
 package com.dmdirc.addons.ui_swing.components.renderers;
 
 import com.dmdirc.ChannelClientProperty;
+import com.dmdirc.addons.ui_swing.UIUtilities;
 import com.dmdirc.config.ConfigManager;
 import com.dmdirc.interfaces.ConfigChangeListener;
 import com.dmdirc.parser.interfaces.ChannelClientInfo;
@@ -69,10 +70,10 @@ public final class NicklistRenderer extends DefaultListCellRenderer implements
         config.addChangeListener("ui", "nicklistbackgroundcolour", this);
         config.addChangeListener("ui", "backgroundcolour", this);
         config.addChangeListener("ui", "nickListAltBackgroundColour", this);
-        altBackgroundColour = config.getOptionColour(
+        altBackgroundColour = UIUtilities.convertColour(config.getOptionColour(
                 "ui", "nickListAltBackgroundColour",
                 "ui", "nicklistbackgroundcolour",
-                "ui", "backgroundcolour");
+                "ui", "backgroundcolour"));
         showColours = config.getOptionBool("ui", "shownickcoloursinnicklist");
     }
 
@@ -112,10 +113,10 @@ public final class NicklistRenderer extends DefaultListCellRenderer implements
 
         } else {
             altBackgroundColour =
-                    config.getOptionColour(
+                    UIUtilities.convertColour(config.getOptionColour(
                     "ui", "nickListAltBackgroundColour",
                     "ui", "nicklistbackgroundcolour",
-                    "ui", "backgroundcolour");
+                    "ui", "backgroundcolour"));
         }
         nicklist.repaint();
     }
