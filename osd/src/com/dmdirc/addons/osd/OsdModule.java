@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.osd;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
@@ -32,7 +31,7 @@ import dagger.Provides;
 /**
  * Dependency injection module for the OSD plugin.
  */
-@Module(injects = {OsdManager.class, OsdCommand.class}, addsTo = SwingModule.class)
+@Module
 public class OsdModule {
 
     private final PluginInfo pluginInfo;

@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.dcc;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
@@ -32,7 +31,7 @@ import dagger.Provides;
 /**
  * DI module for the DCC plugin.
  */
-@Module(injects = {DCCManager.class, DCCCommand.class}, addsTo = SwingModule.class)
+@Module
 public class DCCPluginModule {
 
     /** The DCC plugin's plugin info. */

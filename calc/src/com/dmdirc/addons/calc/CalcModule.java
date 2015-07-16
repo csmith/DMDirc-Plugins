@@ -22,13 +22,11 @@
 
 package com.dmdirc.addons.calc;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
 /**
  * DI Module for the calc plugin.
  */
-@Module(injects = CalcCommand.class, addsTo = ClientModule.class)
+@Module
 public class CalcModule {
 }

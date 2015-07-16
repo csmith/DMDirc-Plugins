@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.dns;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
-@Module(injects = DNSCommand.class, addsTo = ClientModule.class)
+@Module
 public class DNSModule {
 
 }

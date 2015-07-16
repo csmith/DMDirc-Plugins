@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.channelwho;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.util.LoggingScheduledExecutorService;
 
@@ -36,7 +35,7 @@ import dagger.Provides;
 /**
  * Dagger injection module for the Channel Who plugin.
  */
-@Module(injects = ChannelWhoManager.class, addsTo = ClientModule.class)
+@Module
 public class ChannelWhoModule {
     private final String domain;
 

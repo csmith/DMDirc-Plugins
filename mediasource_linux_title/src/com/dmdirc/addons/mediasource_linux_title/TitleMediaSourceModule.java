@@ -22,13 +22,11 @@
 
 package com.dmdirc.addons.mediasource_linux_title;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
 /**
  * DI Module for the title media source plugin.
  */
-@Module(injects=TitleMediaSourceManager.class, addsTo = ClientModule.class)
+@Module
 public class TitleMediaSourceModule {
 }

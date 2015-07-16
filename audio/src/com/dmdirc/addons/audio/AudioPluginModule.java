@@ -22,8 +22,6 @@
 
 package com.dmdirc.addons.audio;
 
-import com.dmdirc.ClientModule;
-
 import java.awt.Toolkit;
 
 import javax.inject.Singleton;
@@ -34,7 +32,7 @@ import dagger.Provides;
 /**
  * Dependency injection module for the audio plugin.
  */
-@Module(injects = {AudioCommand.class, BeepCommand.class}, addsTo = ClientModule.class)
+@Module
 public class AudioPluginModule {
 
     @Provides

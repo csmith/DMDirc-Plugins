@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.awaycolours;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 
 import dagger.Module;
@@ -31,7 +30,7 @@ import dagger.Provides;
 /**
  * Dagger injection module for the Away Colours plugin.
  */
-@Module(injects = AwayColoursManager.class, addsTo = ClientModule.class)
+@Module
 public class AwayColoursModule {
 
     private final String domain;

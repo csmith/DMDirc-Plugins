@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.ui_swing.injection;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.ClientModule.GlobalConfig;
 import com.dmdirc.ClientModule.UserConfig;
 import com.dmdirc.DMDircMBassador;
@@ -32,13 +31,8 @@ import com.dmdirc.addons.ui_swing.NoopClipboard;
 import com.dmdirc.addons.ui_swing.QuitWorker;
 import com.dmdirc.addons.ui_swing.SimpleActiveFrameManager;
 import com.dmdirc.addons.ui_swing.SwingController;
-import com.dmdirc.addons.ui_swing.SwingManager;
 import com.dmdirc.addons.ui_swing.UIUtilities;
-import com.dmdirc.addons.ui_swing.commands.ChannelSettings;
-import com.dmdirc.addons.ui_swing.commands.Input;
-import com.dmdirc.addons.ui_swing.commands.PopInCommand;
-import com.dmdirc.addons.ui_swing.commands.PopOutCommand;
-import com.dmdirc.addons.ui_swing.commands.ServerSettings;
+import com.dmdirc.addons.ui_swing.components.IconManager;
 import com.dmdirc.addons.ui_swing.components.addonpanel.PluginPanel;
 import com.dmdirc.addons.ui_swing.components.addonpanel.ThemePanel;
 import com.dmdirc.addons.ui_swing.components.statusbar.ErrorPanel;
@@ -62,7 +56,6 @@ import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 import com.dmdirc.plugins.ServiceLocator;
 import com.dmdirc.plugins.ServiceManager;
-import com.dmdirc.addons.ui_swing.components.IconManager;
 import com.dmdirc.ui.core.util.URLHandler;
 import com.dmdirc.util.URLBuilder;
 
@@ -79,17 +72,7 @@ import dagger.Provides;
 /**
  * Dagger module that provides Swing-specific dependencies.
  */
-@Module(
-        addsTo = ClientModule.class,
-        includes = DialogModule.class,
-        injects = {
-            SwingManager.class,
-            PopInCommand.class,
-            PopOutCommand.class,
-            Input.class,
-            ServerSettings.class,
-            ChannelSettings.class
-        })
+@Module(includes = DialogModule.class)
 @SuppressWarnings("TypeMayBeWeakened")
 public class SwingModule {
 

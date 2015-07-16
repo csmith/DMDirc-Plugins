@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.debug;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.addons.debug.commands.Benchmark;
 import com.dmdirc.addons.debug.commands.ColourSpam;
 import com.dmdirc.addons.debug.commands.ConfigInfo;
@@ -50,7 +49,7 @@ import dagger.Provides;
 /**
  * Dependency injection module for the debug plugin.
  */
-@Module(injects = Debug.class, addsTo = ClientModule.class)
+@Module
 public class DebugModule {
 
     @Provides(type = Provides.Type.SET)

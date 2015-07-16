@@ -22,15 +22,13 @@
 
 package com.dmdirc.addons.nma;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = {NotifyMyAndroidManager.class, NotifyMyAndroidCommand.class},
-        addsTo = ClientModule.class)
+@Module
 public class NotifyMyAndroidModule {
 
     private final PluginInfo pluginInfo;

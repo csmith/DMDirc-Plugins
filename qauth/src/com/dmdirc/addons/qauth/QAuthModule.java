@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.qauth;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
@@ -32,7 +31,7 @@ import dagger.Provides;
 /**
  * Dagger injection module for the  Q Auth plugin
  */
-@Module(injects = QAuthManager.class, addsTo = ClientModule.class)
+@Module
 public class QAuthModule {
 
     private final PluginInfo pluginInfo;

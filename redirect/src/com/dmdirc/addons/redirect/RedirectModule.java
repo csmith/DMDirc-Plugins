@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.redirect;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
-@Module(injects = RedirectCommand.class, addsTo = ClientModule.class)
+@Module
 public class RedirectModule {
 
 }

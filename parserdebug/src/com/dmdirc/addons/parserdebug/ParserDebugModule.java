@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.parserdebug;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
-@Module(injects = {ParserDebugCommand.class, ParserDebugManager.class}, addsTo = ClientModule.class)
+@Module
 public class ParserDebugModule {
 
 }

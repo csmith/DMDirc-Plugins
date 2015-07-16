@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.exec;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
-@Module(injects = ExecCommand.class, addsTo = ClientModule.class)
+@Module
 public class ExecModule {
 
 }

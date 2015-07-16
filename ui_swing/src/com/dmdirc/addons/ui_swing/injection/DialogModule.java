@@ -80,7 +80,7 @@ import dagger.Provides;
 /**
  * Facilitates injection of dialogs.
  */
-@Module(library = true, complete = false)
+@Module
 @SuppressWarnings("TypeMayBeWeakened")
 public class DialogModule {
 

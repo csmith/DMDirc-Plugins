@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.scriptplugin;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.commandline.CommandLineOptionsModule.Directory;
 import com.dmdirc.commandline.CommandLineOptionsModule.DirectoryType;
 import com.dmdirc.plugins.PluginDomain;
@@ -34,8 +33,7 @@ import javax.script.ScriptEngineManager;
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = {ScriptCommand.class, ScriptManager.class, ScriptPluginManager.class},
-        addsTo = ClientModule.class)
+@Module
 public class ScriptModule {
 
     public static final String SCRIPTS = "scripts";

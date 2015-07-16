@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.sessionlock;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
-@Module(injects = SessionLockManager.class, addsTo = ClientModule.class)
+@Module
 public class SessionLockModule {
 
 }

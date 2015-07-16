@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.windowflashing;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
@@ -32,7 +31,7 @@ import dagger.Provides;
 /**
  * DI Module for the window flashing module.
  */
-@Module(injects = {WindowFlashingManager.class, FlashWindow.class}, addsTo = SwingModule.class)
+@Module
 public class WindowFlashingModule {
 
     private final PluginInfo pluginInfo;

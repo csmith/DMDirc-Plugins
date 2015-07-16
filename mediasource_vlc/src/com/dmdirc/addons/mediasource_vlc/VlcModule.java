@@ -22,14 +22,13 @@
 
 package com.dmdirc.addons.mediasource_vlc;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = VlcManager.class, addsTo = ClientModule.class)
+@Module
 public class VlcModule {
 
     private final PluginInfo pluginInfo;

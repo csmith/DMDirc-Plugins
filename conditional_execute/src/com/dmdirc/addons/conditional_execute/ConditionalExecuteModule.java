@@ -22,13 +22,11 @@
 
 package com.dmdirc.addons.conditional_execute;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
 /**
  * DI for the conditional execute plugin.
  */
-@Module(injects = ConditionalExecuteCommand.class, addsTo = ClientModule.class)
+@Module
 public class ConditionalExecuteModule {
 }

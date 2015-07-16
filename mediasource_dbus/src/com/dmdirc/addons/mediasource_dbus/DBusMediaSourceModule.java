@@ -22,13 +22,11 @@
 
 package com.dmdirc.addons.mediasource_dbus;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
 /**
  * DI Module for the DBus media source.
  */
-@Module(injects=DBusMediaSourceManager.class, addsTo = ClientModule.class)
+@Module
 public class DBusMediaSourceModule {
 }

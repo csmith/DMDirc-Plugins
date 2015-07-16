@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.logging;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.ClientModule.GlobalConfig;
 import com.dmdirc.ClientModule.UserConfig;
 import com.dmdirc.commandline.CommandLineOptionsModule.Directory;
@@ -40,7 +39,7 @@ import dagger.Provides;
 /**
  * Dependency injection module for the logging plugin.
  */
-@Module(addsTo = ClientModule.class, injects = {LoggingManager.class, LoggingCommand.class})
+@Module
 public class LoggingModule {
 
     public static final String LOGS_DIRECTORY = "logs";

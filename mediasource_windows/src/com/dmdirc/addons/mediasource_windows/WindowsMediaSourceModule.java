@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.mediasource_windows;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
@@ -32,7 +31,7 @@ import dagger.Provides;
 /**
  * DI module for the windows media source plugin.
  */
-@Module(injects = WindowsMediaSourceManager.class, addsTo = ClientModule.class)
+@Module
 public class WindowsMediaSourceModule {
 
     private final PluginInfo pluginInfo;

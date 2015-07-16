@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.time;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 
-@Module(injects = {TimerCommand.class, TimerManager.class}, addsTo = ClientModule.class)
+@Module
 public class TimeModule {
 
 }

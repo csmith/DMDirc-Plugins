@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.lagdisplay;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
@@ -32,7 +31,7 @@ import dagger.Provides;
 /**
  * DI module for the lag display plugin.
  */
-@Module(injects = LagDisplayManager.class, addsTo = SwingModule.class)
+@Module
 public class LagDisplayModule {
 
     private final PluginInfo pluginInfo;

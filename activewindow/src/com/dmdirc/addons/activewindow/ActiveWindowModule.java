@@ -22,13 +22,11 @@
 
 package com.dmdirc.addons.activewindow;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
-
 import dagger.Module;
 
 /**
  * DI module for the active window plugin.
  */
-@Module(injects = {ActiveWindowManager.class, ActiveCommand.class}, addsTo = SwingModule.class)
+@Module
 public class ActiveWindowModule {
 }

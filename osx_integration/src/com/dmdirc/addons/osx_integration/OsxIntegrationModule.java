@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.osx_integration;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
-
 import dagger.Module;
 
-@Module(injects = DockBounceCommand.class, addsTo = SwingModule.class)
+@Module
 public class OsxIntegrationModule {
 
 }

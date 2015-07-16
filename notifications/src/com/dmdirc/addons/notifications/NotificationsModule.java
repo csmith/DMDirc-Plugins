@@ -22,15 +22,13 @@
 
 package com.dmdirc.addons.notifications;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = {NotificationCommand.class, NotificationsManager.class},
-        addsTo = ClientModule.class)
+@Module
 public class NotificationsModule {
 
     private final PluginInfo pluginInfo;

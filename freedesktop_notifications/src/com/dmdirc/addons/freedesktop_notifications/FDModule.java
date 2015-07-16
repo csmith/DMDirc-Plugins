@@ -22,7 +22,6 @@
 
 package com.dmdirc.addons.freedesktop_notifications;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 import com.dmdirc.plugins.PluginManager;
@@ -33,7 +32,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = {FDNotifyCommand.class, FDManager.class}, addsTo = ClientModule.class)
+@Module
 public class FDModule {
 
     private final PluginInfo pluginInfo;

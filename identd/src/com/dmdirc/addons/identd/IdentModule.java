@@ -22,14 +22,13 @@
 
 package com.dmdirc.addons.identd;
 
-import com.dmdirc.ClientModule;
 import com.dmdirc.plugins.PluginDomain;
 import com.dmdirc.plugins.PluginInfo;
 
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = {IdentdManager.class, IdentdServer.class}, addsTo = ClientModule.class)
+@Module
 public class IdentModule {
 
     private final PluginInfo pluginInfo;

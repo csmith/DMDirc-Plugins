@@ -22,12 +22,10 @@
 
 package com.dmdirc.addons.dcop;
 
-import com.dmdirc.ClientModule;
-
 import dagger.Module;
 import dagger.Provides;
 
-@Module(injects = DcopCommand.class, addsTo = ClientModule.class)
+@Module
 public class DcopModule {
 
     @Provides

@@ -22,11 +22,9 @@
 
 package com.dmdirc.addons.contactlist;
 
-import com.dmdirc.addons.ui_swing.injection.SwingModule;
-
 import dagger.Module;
 
-@Module(injects = ContactListCommand.class, addsTo = SwingModule.class)
+@Module
 public class ContactListModule {
 
 }
